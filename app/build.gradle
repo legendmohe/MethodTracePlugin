@@ -1,0 +1,53 @@
+apply plugin: 'com.android.application'
+
+android {
+
+    /*
+    MIN_SDK_VERSION=16
+TARGET_SDK_VERSION=26
+COMPILE_SDK_VERSION=26
+BUILD_TOOLS_VERSION=26.0.1
+     */
+    compileSdkVersion 26
+    buildToolsVersion '26.0.1'
+
+    defaultConfig {
+        applicationId "com.legendmohe.methoddiff"
+        minSdkVersion 16
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:26.1.0'
+    compile 'com.android.support.constraint:constraint-layout:1.1.2'
+//    compile 'org.smali:dexlib2:2.2.4'
+//    compile 'org.javassist:javassist:3.23.0-GA'
+    testCompile 'junit:junit:4.12'
+//    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+//    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
+
+apply plugin: 'plugin.test'
+
+//public String enterIndicator = ENTER_INDICATOR;
+//public String exitIndicator = EXIT_INDICATOR;
+//public String[] targetPackagePath = TARGET_PACKAGE_PATH;
+//public String[] skipClasses = SKIP_CLASSES;
+//public String[] skipMethodSuffix = SKIP_METHOD_SUFFIX;
+//public String[] skipMethodprefix = SKIP_METHOD_PREFIX;
+TraceConfig{
+
+}
