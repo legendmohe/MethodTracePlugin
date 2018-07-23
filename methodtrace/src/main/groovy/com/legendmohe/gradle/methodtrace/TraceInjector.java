@@ -158,10 +158,10 @@ public class TraceInjector {
         resultString = resultString.replace("%m", method.getName());
         if ((method.getMethodInfo().getAccessFlags() & AccessFlag.STATIC) != 0x00) {
             // static
-            resultString = resultString.replace("%t", clazz.getName() + ".class.hashCode()");
+            resultString = resultString.replace("%t", "0"); // 容易死循环
         } else {
             // not static
-            resultString = resultString.replace("%t", "this.hashCode()");
+            resultString = resultString.replace("%t", "0"); // 容易死循环
         }
         return resultString;
     }
