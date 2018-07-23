@@ -142,12 +142,8 @@ public class TraceInjector {
 
     private boolean shouldSkipProcessMethod(CtClass c, CtMethod ctMethod) {
         String longName = ctMethod.getLongName();
-        for (String prefix : mTraceConfig.skipMethodprefix) {
-            if (longName.startsWith(prefix))
-                return true;
-        }
-        for (String suffix : mTraceConfig.skipMethodSuffix) {
-            if (longName.endsWith(suffix))
+        for (String prefix : mTraceConfig.skipMethodContains) {
+            if (longName.contains(prefix))
                 return true;
         }
         return false;
@@ -158,10 +154,10 @@ public class TraceInjector {
         resultString = resultString.replace("%m", method.getName());
         if ((method.getMethodInfo().getAccessFlags() & AccessFlag.STATIC) != 0x00) {
             // static
-            resultString = resultString.replace("%t", "0"); // 容易死循环
+            resultString = resultString.replace("%t", "0"); // 不要hashCode了，容易死循环
         } else {
             // not static
-            resultString = resultString.replace("%t", "0"); // 容易死循环
+            resultString = resultString.replace("%t", "0"); // 不要hashCode了，容易死循环
         }
         return resultString;
     }

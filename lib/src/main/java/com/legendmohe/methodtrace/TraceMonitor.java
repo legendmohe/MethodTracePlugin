@@ -1,17 +1,20 @@
 package com.legendmohe.methodtrace;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TraceMonitor {
     private static final String TAG = "TraceMonitor";
 
+    public static final String THREAD_NAME_MAIN = "main";
+
+    private static final int MAX_BUFFER_NUMBER = 1000;
+
     private boolean mEnable = false;
 
     private boolean mPrintLogcat = false;
-
-    private Listener mListener;
 
     private static class LazyHolder {
         private static final TraceMonitor INSTANCE = new TraceMonitor();
@@ -21,7 +24,7 @@ public class TraceMonitor {
         return LazyHolder.INSTANCE;
     }
 
-    private ConcurrentHashMap<String, List<TraceNode>> mBuffer = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, CircularFifoQueue<TraceNode>> mBuffer = new ConcurrentHashMap<>();
 
     ///////////////////////////////////public///////////////////////////////////
 
@@ -37,9 +40,9 @@ public class TraceMonitor {
         if (!mEnable) {
             return;
         }
-        List<TraceNode> traceNodes = mBuffer.get(threadName);
+        CircularFifoQueue<TraceNode> traceNodes = mBuffer.get(threadName);
         if (traceNodes == null) {
-            mBuffer.putIfAbsent(threadName, new ArrayList<TraceNode>());
+            mBuffer.putIfAbsent(threadName, new CircularFifoQueue<TraceNode>(MAX_BUFFER_NUMBER));
             // 再拿一次，避免竞争引起的list覆盖问题
             traceNodes = mBuffer.get(threadName);
         }
@@ -51,19 +54,9 @@ public class TraceMonitor {
         newNode.ts = ts;
         newNode.hash = objHash;
         traceNodes.add(newNode);
-        if (mListener != null) {
-            mListener.onTrace(newNode);
-        }
 
         if (mPrintLogcat) {
             System.out.println(printFormattedNodeInfo(newNode));
-        }
-    }
-
-    public void clearBuffer() {
-        mBuffer.clear();
-        if (mListener != null) {
-            mListener.onClearBuffer();
         }
     }
 
@@ -105,21 +98,21 @@ public class TraceMonitor {
         mPrintLogcat = printLogcat;
     }
 
-    public Listener getListener() {
-        return mListener;
+    public List<TraceNode> getBuffer(String threadName) {
+        CircularFifoQueue<TraceNode> traceNodes = mBuffer.get(threadName);
+        return new ArrayList<>(traceNodes);
     }
 
-    public void setListener(Listener listener) {
-        mListener = listener;
+    public List<String> getThreadNames() {
+        ArrayList<String> arrayList = new ArrayList<>();
+        Enumeration<String> enumeration = mBuffer.keys();
+        while (enumeration.hasMoreElements()) {
+            arrayList.add(enumeration.nextElement());
+        }
+        return arrayList;
     }
 
     //////////////////////////////////interface////////////////////////////////////
-
-    public interface Listener {
-        void onTrace(TraceNode node);
-
-        void onClearBuffer();
-    }
 
     public static class TraceNode {
         // format: <---> exit main|com.legendmohe.methoddiff.MainActivity|onCreate()|4126|188072276

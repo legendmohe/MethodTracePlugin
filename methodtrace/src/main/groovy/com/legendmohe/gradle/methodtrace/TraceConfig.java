@@ -28,22 +28,18 @@ public class TraceConfig {
     static String[] SKIP_CLASSES = new String[]{"R$", "R.class", "BuildConfig.class", "com.legendmohe.methodtrace.TraceMonitor"};
 
     // 不要处理hashCode，避免死循环
-    static String[] SKIP_METHOD_SUFFIX = new String[]{".hashCode()", "onTrace(com.legendmohe.methodtrace.TraceMonitor$TraceNode)", "onClearBuffer()"};
-
-    static String[] SKIP_METHOD_PREFIX = new String[]{"java.lang."};
+    static String[] SKIP_METHOD_CONTAINS = new String[]{".hashCode()", ".onTrace(com.legendmohe.methodtrace.TraceMonitor$TraceNode)", ".onClearBuffer()", "java.lang.", "access$"};
 
     public String[] targetPackagePath = TARGET_PACKAGE_PATH;
     public String[] skipClasses = SKIP_CLASSES;
-    public String[] skipMethodSuffix = SKIP_METHOD_SUFFIX;
-    public String[] skipMethodprefix = SKIP_METHOD_PREFIX;
+    public String[] skipMethodContains = SKIP_METHOD_CONTAINS;
 
     @Override
     public String toString() {
         return "TraceConfig{" +
                 ", targetPackagePath=" + Arrays.toString(targetPackagePath) +
                 ", skipClasses=" + Arrays.toString(skipClasses) +
-                ", skipMethodSuffix=" + Arrays.toString(skipMethodSuffix) +
-                ", skipMethodprefix=" + Arrays.toString(skipMethodprefix) +
+                ", skipMethodContains=" + Arrays.toString(skipMethodContains) +
                 '}';
     }
 
@@ -56,14 +52,9 @@ public class TraceConfig {
         this.skipClasses = resultClasses;
     }
 
-    public void setSkipMethodSuffix(String[] skipMethodSuffix) {
-        String[] resultClasses = mergeParamsWithDefault(skipMethodSuffix, this.skipMethodSuffix);
-        this.skipMethodSuffix = resultClasses;
-    }
-
-    public void setSkipMethodprefix(String[] skipMethodprefix) {
-        String[] resultClasses = mergeParamsWithDefault(skipMethodprefix, this.skipMethodprefix);
-        this.skipMethodprefix = resultClasses;
+    public void setSkipMethodContains(String[] skipMethods) {
+        String[] resultClasses = mergeParamsWithDefault(skipMethods, this.skipMethodContains);
+        this.skipMethodContains = resultClasses;
     }
 
     private String[] mergeParamsWithDefault(String[] src, String[] target) {
