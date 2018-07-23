@@ -1,4 +1,4 @@
-package com.legendmohe.plugin;
+package com.legendmohe.gradle.methodtrace;
 
 import com.android.build.api.transform.DirectoryInput;
 import com.android.build.api.transform.Format;

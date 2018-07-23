@@ -10,6 +10,7 @@ dependencies {
 }
 
 repositories {
+    jcenter()
     mavenCentral()
 }
 
@@ -18,7 +19,7 @@ repositories {
 //    targetCompatibility = JavaVersion.VERSION_1_7
 //}
 
-group='com.legendmohe.plugin'
+group='com.legendmohe.gradle'
 version='1.0.0'
 
 uploadArchives {

@@ -1,6 +1,7 @@
-package com.legendmohe.plugin;
+package com.legendmohe.gradle.methodtrace;
 
 import com.android.build.gradle.AppExtension;
+
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 

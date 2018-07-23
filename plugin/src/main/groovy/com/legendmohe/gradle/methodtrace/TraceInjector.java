@@ -1,4 +1,4 @@
-package com.legendmohe.plugin;
+package com.legendmohe.gradle.methodtrace;
 
 import com.android.build.gradle.AppExtension;
 
@@ -63,35 +63,36 @@ public class TraceInjector {
                 try {
                     String filePath = file.toString();
                     //确保当前文件是class文件，并且不是系统自动生成的class文件
-                    if (filePath.endsWith(".class")
-                            && !Util.containsIn(filePath, TraceConfig.SKIP_CLASSES)) {
+                    if (filePath.endsWith(".class")) {
                         // 判断当前目录是否是在我们的应用包里面
                         String className = filePath.replace('\\', '.').replace('/', '.');
-                        int index = -1;
-                        for (String packageName : mTraceConfig.targetPackagePath) {
-                            index = className.indexOf(packageName);
-                            if (index != -1) {
-                                break;
+                        if (!Util.containsIn(className, TraceConfig.SKIP_CLASSES)) {
+                            int index = -1;
+                            for (String packageName : mTraceConfig.targetPackagePath) {
+                                index = className.indexOf(packageName);
+                                if (index != -1) {
+                                    break;
+                                }
                             }
-                        }
-                        boolean isMyPackage = index != -1;
-                        if (isMyPackage) {
-                            int end = className.length() - 6;// .class = 6
-                            className = className.substring(index, end);
-                            CtClass c = pool.getCtClass(className);
-                            if (c.isFrozen()) {
-                                c.defrost();
-                            }
+                            boolean isMyPackage = index != -1;
+                            if (isMyPackage) {
+                                int end = className.length() - 6;// .class = 6
+                                className = className.substring(index, end);
+                                CtClass c = pool.getCtClass(className);
+                                if (c.isFrozen()) {
+                                    c.defrost();
+                                }
 
-                            if (!(c.isInterface() || c.isEnum() || c.isAnnotation())) {
-                                //开始修改class文件
-                                injectTargetCtClass(c);
-                            } else {
-                                Util.log("skip target class: " + c.getName());
-                            }
+                                if (!(c.isInterface() || c.isEnum() || c.isAnnotation())) {
+                                    //开始修改class文件
+                                    injectTargetCtClass(c);
+                                } else {
+                                    Util.log("skip target class: " + c.getName());
+                                }
 
-                            c.writeFile(path);
-                            c.detach();
+                                c.writeFile(path);
+                                c.detach();
+                            }
                         }
                     }
                 } catch (Exception ex) {

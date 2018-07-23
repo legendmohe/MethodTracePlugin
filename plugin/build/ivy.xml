@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
-  <info organisation="com.legendmohe.plugin" module="plugin" revision="1.0.0" status="integration" default="true" publication="20180721200857"/>
+<ivy-module version="2.0">
+    <info organisation="com.legendmohe.gradle" module="plugin" revision="1.0.0" status="integration"
+          default="true" publication="20180723131711"/>
   <configurations>
     <conf name="archives" visibility="public"/>
     <conf name="compile" visibility="private"/>

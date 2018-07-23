@@ -33,14 +33,13 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.1.2'
-//    compile 'org.smali:dexlib2:2.2.4'
-//    compile 'org.javassist:javassist:3.23.0-GA'
     testCompile 'junit:junit:4.12'
-//    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-//    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    //    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    //    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    compile project(':lib')
 }
 
-apply plugin: 'plugin.test'
+apply plugin: 'plugin.methodtrace'
 
 //public String enterIndicator = ENTER_INDICATOR;
 //public String exitIndicator = EXIT_INDICATOR;
