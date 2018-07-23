@@ -1,1 +1,1 @@
-include ':app', ':methodtrace', ':lib'
+include ':app', ':lib'
