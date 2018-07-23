@@ -13,16 +13,6 @@ public class MyApp extends Application {
 
     @Override
     protected void attachBaseContext(Context base) {
-        TraceMonitor.getInstance().setListener(new TraceMonitor.Listener() {
-            @Override
-            public void onTrace(TraceMonitor.TraceNode node) {
-//                Log.d(TAG, "onTrace() called with: node = " + TraceMonitor.printFormattedNodeInfo(node));
-            }
-
-            @Override
-            public void onClearBuffer() {
-            }
-        });
         TraceMonitor.getInstance().setEnable(true);
         TraceMonitor.getInstance().setPrintLogcat(true);
 
