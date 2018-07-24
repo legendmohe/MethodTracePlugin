@@ -25,10 +25,10 @@ public class TraceConfig {
             "com.legendmohe.methodtrace.TraceMonitor.getInstance().onTrace(false, Thread.currentThread().getName(), \"%c\", \"%m\", System.currentTimeMillis(), %t);" +
             "}";
 
-    static String[] SKIP_CLASSES = new String[]{"R$", "R.class", "BuildConfig.class", "com.legendmohe.methodtrace.TraceMonitor"};
+    static String[] SKIP_CLASSES = new String[]{"R$", "R.class", "BuildConfig.class", "com.legendmohe.methodtrace"};
 
     // 不要处理hashCode，避免死循环
-    static String[] SKIP_METHOD_CONTAINS = new String[]{".hashCode()", ".onTrace(com.legendmohe.methodtrace.TraceMonitor$TraceNode)", ".onClearBuffer()", "java.lang.", "access$"};
+    static String[] SKIP_METHOD_CONTAINS = new String[]{".hashCode()", "java.lang.", "access$"};
 
     public String[] targetPackagePath = TARGET_PACKAGE_PATH;
     public String[] skipClasses = SKIP_CLASSES;

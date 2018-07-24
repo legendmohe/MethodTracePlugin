@@ -16,6 +16,8 @@ public class TraceMonitor {
 
     private boolean mPrintLogcat = false;
 
+    private boolean mEnableSystemTrace = false;
+
     private static class LazyHolder {
         private static final TraceMonitor INSTANCE = new TraceMonitor();
     }
@@ -96,6 +98,14 @@ public class TraceMonitor {
 
     public void setPrintLogcat(boolean printLogcat) {
         mPrintLogcat = printLogcat;
+    }
+
+    public boolean isEnableSystemTrace() {
+        return mEnableSystemTrace;
+    }
+
+    public void setEnableSystemTrace(boolean enableSystemTrace) {
+        mEnableSystemTrace = enableSystemTrace;
     }
 
     public List<TraceNode> getBuffer(String threadName) {
