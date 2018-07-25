@@ -1,22 +1,20 @@
 package com.legendmohe.methoddiff;
 
-import android.app.Application;
 import android.content.Context;
 
-import com.legendmohe.methodtrace.TraceMonitor;
+import com.legendmohe.testmodeule.AbstractApp;
 
 /**
  * Created by hexinyu on 2018/7/23.
  */
-public class MyApp extends Application {
+public class MyApp extends AbstractApp {
     private static final String TAG = "MyApp";
 
     @Override
     protected void attachBaseContext(Context base) {
-        TraceMonitor.getInstance().setEnable(true);
-        TraceMonitor.getInstance().setPrintLogcat(true);
-
         super.attachBaseContext(base);
+
+        doIt();
     }
 
     @Override

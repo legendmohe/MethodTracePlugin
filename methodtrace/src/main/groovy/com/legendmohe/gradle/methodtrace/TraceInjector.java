@@ -1,6 +1,6 @@
 package com.legendmohe.gradle.methodtrace;
 
-import com.android.build.gradle.AppExtension;
+import com.android.build.gradle.BaseExtension;
 
 import org.gradle.api.Project;
 
@@ -15,6 +15,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -31,11 +33,11 @@ public class TraceInjector {
 
     private TraceConfig mTraceConfig;
     private Project mProject;
-    private AppExtension mAndroid;
 
-    public TraceInjector(Project project, AppExtension android) {
+    private static Set<String> sProcessedClassNames = new HashSet<>();
+
+    public TraceInjector(Project project, BaseExtension android) {
         mProject = project;
-        mAndroid = android;
     }
 
     public void onClassPathPrepared() {
@@ -54,8 +56,10 @@ public class TraceInjector {
         if (mTraceConfig.targetPackagePath == null || mTraceConfig.targetPackagePath.length == 0) {
             Util.log("empty targetPackagePath");
             return;
+        } else {
+            Util.log("processing dir:" + path);
         }
-
+        Set<String> targetClassNames = new HashSet<>();
         FileVisitor<Path> fileVisitor = new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
@@ -66,34 +70,47 @@ public class TraceInjector {
                     if (filePath.endsWith(".class")) {
                         // 判断当前目录是否是在我们的应用包里面
                         String className = filePath.replace('\\', '.').replace('/', '.');
-                        if (!Util.containsIn(className, mTraceConfig.skipClasses)) {
-                            int index = -1;
-                            for (String packageName : mTraceConfig.targetPackagePath) {
-                                index = className.indexOf(packageName);
-                                if (index != -1) {
-                                    break;
-                                }
-                            }
-                            boolean isMyPackage = index != -1;
-                            if (isMyPackage) {
-                                int end = className.length() - 6;// .class = 6
-                                className = className.substring(index, end);
-                                CtClass c = pool.getCtClass(className);
-                                if (c.isFrozen()) {
-                                    c.defrost();
-                                }
-
-                                if (!(c.isInterface() || c.isEnum() || c.isAnnotation())) {
-                                    //开始修改class文件
-                                    injectTargetCtClass(c);
-                                } else {
-                                    Util.log("skip target class: " + c.getName());
-                                }
-
-                                c.writeFile(path);
-                                c.detach();
+                        int index = -1;
+                        for (String packageName : mTraceConfig.targetPackagePath) {
+                            index = className.indexOf(packageName);
+                            if (index != -1) {
+                                break;
                             }
                         }
+//                        Util.log("check package:" + className + " " + index);
+                        boolean isMyPackage = index != -1;
+                        if (isMyPackage) {
+                            int end = className.length() - 6;// .class = 6
+                            className = className.substring(index, end);
+                            // 先存起来，后面一起处理
+                            targetClassNames.add(className);
+                        }
+//                        if (!Util.containsIn(className, mTraceConfig.skipClasses)) {
+//                            int index = -1;
+//                            for (String packageName : mTraceConfig.targetPackagePath) {
+//                                index = className.indexOf(packageName);
+//                                if (index != -1) {
+//                                    break;
+//                                }
+//                            }
+//                            boolean isMyPackage = index != -1;
+//                            if (isMyPackage) {
+//                                int end = className.length() - 6;// .class = 6
+//                                className = className.substring(index, end);
+//                                CtClass c = pool.getCtClass(className);
+//                                if (c.isFrozen()) {
+//                                    c.defrost();
+//                                }
+//
+//                                if (!(c.isInterface() || c.isEnum() || c.isAnnotation())) {
+//                                } else {
+//                                    Util.log("skip target class: " + c.getName());
+//                                }
+//
+//                                c.writeFile(path);
+//                                c.detach();
+//                            }
+//                        }
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -106,6 +123,45 @@ public class TraceInjector {
             Files.walkFileTree(Paths.get(path), fileVisitor);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        LinkedList<String> pendingProcessClasses = new LinkedList<>(targetClassNames);
+        while (!pendingProcessClasses.isEmpty()) {
+            String curClassName = pendingProcessClasses.removeFirst();
+            if (sProcessedClassNames.contains(curClassName)) {
+                continue;
+            }
+            if (!Util.startsWith(curClassName, mTraceConfig.skipPackages)
+                    && !Util.endsWith(curClassName, TraceConfig.SKIP_CLASSE_INTERNAL)
+                    && !Util.containsIn(curClassName, mTraceConfig.skipClasses)) {
+
+                try {
+                    CtClass c = pool.getCtClass(curClassName);
+                    if (c.isFrozen()) {
+                        c.defrost();
+                    }
+
+                    if (!(c.isInterface() || c.isEnum() || c.isAnnotation())) {
+                        Collection<String> refClasses = c.getRefClasses();
+                        for (String refClass : refClasses) {
+                            Util.log("add refClass:" + refClass);
+                            if (!refClass.equals(c.getName())) {
+                                pendingProcessClasses.add(refClass);
+                            }
+                        }
+                        //开始修改class文件
+                        injectTargetCtClass(c);
+                        sProcessedClassNames.add(c.getName());
+                    } else {
+                        Util.log("skip target class: " + c.getName());
+                    }
+                    Util.log("write file:" + path);
+                    c.writeFile(path);
+                    c.detach();
+                } catch (CannotCompileException | IOException | NotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

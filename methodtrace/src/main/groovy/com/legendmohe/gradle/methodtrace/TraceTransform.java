@@ -8,7 +8,8 @@ import com.android.build.api.transform.Transform;
 import com.android.build.api.transform.TransformException;
 import com.android.build.api.transform.TransformInput;
 import com.android.build.api.transform.TransformInvocation;
-import com.android.build.gradle.AppExtension;
+import com.android.build.gradle.BaseExtension;
+import com.android.build.gradle.LibraryExtension;
 import com.android.build.gradle.internal.pipeline.TransformManager;
 import com.android.utils.FileUtils;
 
@@ -27,15 +28,17 @@ import javassist.NotFoundException;
 public class TraceTransform extends Transform {
 
     private static ClassPool sPool = ClassPool.getDefault();
+    private final BaseExtension mAndroid;
 
     private Project mProject;
 
     private TraceInjector mTraceInjector;
 
-    public TraceTransform(Project p, AppExtension android) {
+    public TraceTransform(Project p, BaseExtension android) {
         this.mProject = p;
+        this.mAndroid = android;
 
-        p.getExtensions().create("TraceConfig", TraceConfig.class);
+        Util.log("sPoll hash " + sPool.hashCode());
 
         mTraceInjector = new TraceInjector(mProject, android);
         // 添加android相关class
@@ -65,6 +68,9 @@ public class TraceTransform extends Transform {
 
     @Override
     public Set<QualifiedContent.Scope> getScopes() {
+        if (mAndroid instanceof LibraryExtension) {
+            return TransformManager.SCOPE_FULL_LIBRARY;
+        }
         return TransformManager.SCOPE_FULL_PROJECT;
     }
 
@@ -116,7 +122,6 @@ public class TraceTransform extends Transform {
                         jarInput.getContentTypes(), jarInput.getScopes(), Format.JAR);
                 //将输入内容复制到输出
                 dest.mkdirs();
-                Util.log("isExist:" + dest.getAbsolutePath());
                 FileUtils.copyFile(jarInput.getFile(), dest);
             }
         }

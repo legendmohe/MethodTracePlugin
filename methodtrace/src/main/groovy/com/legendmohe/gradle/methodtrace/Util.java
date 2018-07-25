@@ -28,4 +28,30 @@ public class Util {
         }
         return false;
     }
+
+    public static boolean startsWith(String src, String[] samples) {
+        if (src == null || samples == null || samples.length == 0) {
+            return false;
+        }
+
+        for (String sample : samples) {
+            if (src.startsWith(sample)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean endsWith(String src, String[] samples) {
+        if (src == null || samples == null || samples.length == 0) {
+            return false;
+        }
+
+        for (String sample : samples) {
+            if (src.endsWith(sample)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

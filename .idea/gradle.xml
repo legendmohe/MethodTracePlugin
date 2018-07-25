@@ -10,8 +10,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/lib" />
             <option value="$PROJECT_DIR$/methodtrace" />
+            <option value="$PROJECT_DIR$/testmodeule" />
+            <option value="$PROJECT_DIR$/tracelib" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

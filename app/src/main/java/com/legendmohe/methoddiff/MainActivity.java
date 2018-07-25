@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
         new Test().run(2, (char) 3);
         mTest = new Test();
         mTest.run(2, (char) 4);
-        hashCode();
         Log.e("--->", "===================");
     }
 
@@ -42,6 +41,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public int hashCode() {
-        return super.hashCode() + mTest.hashCode();
+        return super.hashCode();
     }
 }
