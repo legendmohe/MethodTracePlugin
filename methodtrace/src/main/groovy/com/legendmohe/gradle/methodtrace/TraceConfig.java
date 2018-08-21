@@ -8,23 +8,31 @@ import java.util.Set;
  * Created by hexinyu on 2018/7/21.
  */
 public class TraceConfig {
+    static final String ENTER_INDICATOR = "enter";
+    static final String EXIT_INDICATOR = "exit";
 
-    public static final String[] TARGET_PACKAGE_PATH = new String[]{};
+    static final String[] TARGET_PACKAGE_PATH = new String[]{};
+
+    static String[] TARGET_CLASSES = new String[]{};
+
+    static String[] TARGET_PROJECTS = new String[]{};
 
     /*
     onTrace(boolean dirIn, String threadName, String className, String methodName, long ts, long objHash)
      */
     static String STATEMENT_INSERT_BEFORE = "{" +
-            "com.legendmohe.methodtrace.TraceMonitor.getInstance().onTrace(true, Thread.currentThread().getName(), \"%c\", \"%m\", System.currentTimeMillis(), %t);" +
+            "if(com.legendmohe.tracelib.MethodTrace.isEnabled())System.out.println(\"<---> " + ENTER_INDICATOR + " \" + Thread.currentThread().getName() + \"|%c|%m()|\" + System.currentTimeMillis() + \"|\" + %t);" +
+            "android.support.v4.os.TraceCompat.beginSection(\"%c#%m\");" +
             "}";
 
     static String STATEMENT_INSERT_AFTER = "{" +
-            "com.legendmohe.methodtrace.TraceMonitor.getInstance().onTrace(false, Thread.currentThread().getName(), \"%c\", \"%m\", System.currentTimeMillis(), %t);" +
+            "if(com.legendmohe.tracelib.MethodTrace.isEnabled())System.out.println(\"<---> " + EXIT_INDICATOR + " \" + Thread.currentThread().getName() + \"|%c|%m()|\" + System.currentTimeMillis() + \"|\" + %t);" +
+            "android.support.v4.os.TraceCompat.endSection();" +
             "}";
 
-    static String[] SKIP_CLASSES = new String[]{"com.legendmohe.methodtrace", ".R$"};
+    static String[] SKIP_CLASSES = new String[]{"com.legendmohe.tracelib", ".R$"};
 
-    static String[] SKIP_CLASSE_INTERNAL = new String[]{".R", ".BuildConfig"};
+    static String[] SKIP_CLASSES_SUFFIX_INTERNAL = new String[]{".R", ".BuildConfig"};
 
     static String[] SKIP_PACKAGES = new String[]{"java.lang.", "android."};
 
@@ -32,21 +40,34 @@ public class TraceConfig {
     static String[] SKIP_METHOD_CONTAINS = new String[]{".hashCode()", "java.lang.", "access$"};
 
     public String[] targetPackagePath = TARGET_PACKAGE_PATH;
+    public String[] targetProjects = TARGET_PROJECTS;
     public String[] skipClasses = SKIP_CLASSES;
+    public String[] targetClasses = TARGET_CLASSES;
     public String[] skipPackages = SKIP_PACKAGES;
     public String[] skipMethodContains = SKIP_METHOD_CONTAINS;
 
     @Override
     public String toString() {
         return "TraceConfig{" +
-                ", targetPackagePath=" + Arrays.toString(targetPackagePath) +
+                "targetPackagePath=" + Arrays.toString(targetPackagePath) +
+                ", targetClasses=" + Arrays.toString(targetClasses) +
+                ", targetProjects=" + Arrays.toString(targetProjects) +
                 ", skipClasses=" + Arrays.toString(skipClasses) +
+                ", skipPackages=" + Arrays.toString(skipPackages) +
                 ", skipMethodContains=" + Arrays.toString(skipMethodContains) +
                 '}';
     }
 
     public void setTargetPackagePath(String[] targetPackagePath) {
         this.targetPackagePath = targetPackagePath;
+    }
+
+    public void setTargetClasses(String[] targetClasses) {
+        this.targetClasses = targetClasses;
+    }
+
+    public void setTargetProjects(String[] targetProjects) {
+        this.targetProjects = targetProjects;
     }
 
     public void setSkipClasses(String[] skipClasses) {

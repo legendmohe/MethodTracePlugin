@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.legendmohe.tracelib.MethodTrace;
+
 public class MainActivity extends AppCompatActivity {
 
     private Test mTest;
@@ -21,9 +23,13 @@ public class MainActivity extends AppCompatActivity {
                 new Test().run(2, (char) 3);
             }
         }, "bg").start();
+
+
         new Test().run(2, (char) 3);
         new Test().run(2, (char) 3);
+        MethodTrace.setEnabled(true);
         new Test().run(2, (char) 3);
+        MethodTrace.setEnabled(false);
         mTest = new Test();
         mTest.run(2, (char) 4);
         Log.e("--->", "===================");

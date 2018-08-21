@@ -1,1 +1,1 @@
-include ':app', ':methodtrace', ':tracelib', ':testmodeule'
+include ':app', ':testmodeule', ':tracelib', ':tracelib'

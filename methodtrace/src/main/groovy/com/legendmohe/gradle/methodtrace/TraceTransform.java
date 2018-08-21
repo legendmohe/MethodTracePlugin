@@ -32,13 +32,11 @@ public class TraceTransform extends Transform {
 
     private Project mProject;
 
-    private TraceInjector mTraceInjector;
+    private ITraceInjector mTraceInjector;
 
     public TraceTransform(Project p, BaseExtension android) {
         this.mProject = p;
         this.mAndroid = android;
-
-        Util.log("sPoll hash " + sPool.hashCode());
 
         mTraceInjector = new TraceInjector(mProject, android);
         // 添加android相关class
@@ -89,11 +87,64 @@ public class TraceTransform extends Transform {
 
         // Transform的inputs有两种类型，一种是目录，一种是jar包，要分开遍历
         for (TransformInput input : transformInvocation.getInputs()) {
+            //对类型为jar文件的input进行遍历
+            for (JarInput jarInput : input.getJarInputs()) {
+                //jar文件一般是第三方依赖库jar文件
+
+                // 重命名输出文件（同目录copyFile会冲突）
+                String jarName = jarInput.getName();
+                File jarFile = jarInput.getFile();
+
+                String md5Name = DigestUtils.md5Hex(jarFile.getAbsolutePath());
+                if (jarName.endsWith(".jar")) {
+                    jarName = jarName.substring(0, jarName.length() - 4);
+                }
+
+                Util.log("mTraceInjector.injectJar=" + jarInput.getFile().getAbsolutePath());
+                File injectedJarFile = mTraceInjector.injectJar(
+                        jarInput.getFile(),
+                        sPool
+                );
+
+                //生成输出路径
+                File dest = transformInvocation.getOutputProvider().getContentLocation(jarName + md5Name,
+                        jarInput.getContentTypes(), jarInput.getScopes(), Format.JAR);
+                if (dest != null) {
+                    if (dest.getParentFile() != null) {
+                        if (!dest.getParentFile().exists()) {
+                            dest.getParentFile().mkdirs();
+                        }
+                    }
+
+                    if (!dest.exists()) {
+                        try {
+                            dest.createNewFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (null != injectedJarFile && injectedJarFile.exists()) {
+                        try {
+                            FileUtils.copyFile(injectedJarFile, dest);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        try {
+                            FileUtils.copyFile(jarInput.getFile(), dest);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
             //对类型为“文件夹”的input进行遍历
             for (DirectoryInput directoryInput : input.getDirectoryInputs()) {
                 //文件夹里面包含的是我们手写的类以及R.class、BuildConfig.class以及R$XXX.class等
 
                 // 注入代码
+                Util.log("mTraceInjector.injectDir=" + directoryInput.getFile().getAbsolutePath());
                 mTraceInjector.injectDir(directoryInput.getFile().getAbsolutePath(), sPool);
 
                 // 获取output目录
@@ -103,26 +154,6 @@ public class TraceTransform extends Transform {
 
                 // 将input的目录复制到output指定目录
                 FileUtils.copyDirectory(directoryInput.getFile(), dest);
-            }
-            //对类型为jar文件的input进行遍历
-            int i = 0;
-            for (JarInput jarInput : input.getJarInputs()) {
-                //jar文件一般是第三方依赖库jar文件
-//                if (i ++ > 0)
-//                    continue;
-
-                // 重命名输出文件（同目录copyFile会冲突）
-                String jarName = jarInput.getName();
-                String md5Name = DigestUtils.md5Hex(jarInput.getFile().getAbsolutePath());
-                if (jarName.endsWith(".jar")) {
-                    jarName = jarName.substring(0, jarName.length() - 4);
-                }
-                //生成输出路径
-                File dest = transformInvocation.getOutputProvider().getContentLocation(jarName + md5Name,
-                        jarInput.getContentTypes(), jarInput.getScopes(), Format.JAR);
-                //将输入内容复制到输出
-                dest.mkdirs();
-                FileUtils.copyFile(jarInput.getFile(), dest);
             }
         }
     }

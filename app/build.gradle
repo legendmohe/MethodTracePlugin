@@ -37,14 +37,17 @@ dependencies {
     //    androidTestImplementation 'com.android.support.test:runner:1.0.2'
     //    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     compile project(':testmodeule')
+    compile project(':tracelib')
 }
 
-apply plugin: 'plugin.methodtrace'
+
+allprojects {
+    apply plugin: 'plugin.methodtrace'
 
 //public String[] targetPackagePath = TARGET_PACKAGE_PATH;
 //public String[] skipClasses = SKIP_CLASSES;
 //public String[] skipMethodContains;
-TraceConfig{
-    targetPackagePath "com.legendmohe.methoddiff", "com.legendmohe.testmodeule"
+    TraceConfig{
+        targetPackagePath "com.legendmohe.methoddiff", "com.legendmohe.testmodeule"
+    }
 }
-
