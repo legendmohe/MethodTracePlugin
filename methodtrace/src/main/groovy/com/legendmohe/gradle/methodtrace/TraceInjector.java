@@ -128,7 +128,7 @@ public class TraceInjector implements ITraceInjector {
     }
 
     @Override
-    public synchronized File injectJar(File jar, ClassPool pool) {
+    public synchronized File injectJar(File jar, String jarName, ClassPool pool) {
         Util.log("injectJar jar:" + jar.getAbsolutePath());
 
         if (!jar.getAbsolutePath().contains(mProject.getRootDir().getAbsolutePath())) {
@@ -145,7 +145,6 @@ public class TraceInjector implements ITraceInjector {
             return destFile;
         }
 
-        String jarName = jar.getName().substring(0, jar.getName().length() - ".jar".length());
         String baseDir = new StringBuilder().append(mProject.getProjectDir().getAbsolutePath())
                 .append(File.separator).append("methodTemp")
                 .append(File.separator).append("1.0.0")

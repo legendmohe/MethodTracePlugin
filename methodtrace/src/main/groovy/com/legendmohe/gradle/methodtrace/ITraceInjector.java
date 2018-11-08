@@ -12,5 +12,5 @@ interface ITraceInjector {
 
     void injectDir(String srcPath, ClassPool pool);
 
-    File injectJar(File jar, ClassPool pool);
+    File injectJar(File jar, String jarName, ClassPool pool);
 }

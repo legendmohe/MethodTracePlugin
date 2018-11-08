@@ -103,6 +103,7 @@ public class TraceTransform extends Transform {
                 Util.log("mTraceInjector.injectJar=" + jarInput.getFile().getAbsolutePath());
                 File injectedJarFile = mTraceInjector.injectJar(
                         jarInput.getFile(),
+                        jarName,
                         sPool
                 );
 
